@@ -50,12 +50,30 @@ namespace luatic {
             }
         };
 
+        template <std::size_t... Ns, class T, class... Ts>
+        auto returnsImpl_(lua_State* L, std::index_sequence<Ns...>,
+                          std::tuple<T, Ts...> returns) -> void {
+            Return<T>::apply(L, std::get<0>(returns));
+            auto tmp = std::make_tuple(std::get<Ns + 1u>(returns)...);
+            Returns<decltype(tmp)>::apply(L, tmp);
+        }
+        
         template <class... Ts>
         class Returns<std::tuple<Ts...> > {
         public:
             static auto apply(lua_State* L, const std::tuple<Ts...>& returns)
                 -> void {
-                
+                returnsImpl_(L, std::make_index_sequence<sizeof...(Ts) - 1u>(),
+                             returns);
+            }
+        };
+
+        template <class T>
+        class Returns<std::tuple<T> > {
+        public:
+            static auto apply(lua_State* L, const std::tuple<T>& returns)
+                -> void {
+                Return<T>::apply(L, std::get<0>(returns));
             }
         };
 
