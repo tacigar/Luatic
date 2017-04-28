@@ -14,7 +14,7 @@ auto main() -> int {
         return EXIT_FAILURE;
     }
 
-    luatic::Global(L)
+    luatic::Global<>(L)
         .begin()
             .defFunction("hello_from_the_other_side", hello_from_the_other_side)
             // use positive lambda, not normal lambda.

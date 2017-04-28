@@ -21,7 +21,7 @@ namespace luatic {
     
     namespace detail {
 
-        template <int N>
+        template <class Marker, int N>
         class Global_;
         
         template <class Outer, int N>
@@ -79,12 +79,12 @@ namespace luatic {
             Outer _outer;
         };
 
-        template <int M, int N>
-        class Namespace_<Global_<M>, N> {
+        template <class Marker, int M, int N>
+        class Namespace_<Global_<Marker, M>, N> {
             template <class O, int K>
             friend class luatic::detail::Namespace_;
         private:
-            using Outer = Global_<M>;
+            using Outer = Global_<Marker, M>;
             
         public:
             Namespace_(lua_State* L, const std::string& name,
@@ -105,7 +105,7 @@ namespace luatic {
 
             auto end() -> decltype(auto) {
                 lua_setglobal(_L, _name.data());
-                return Global_<M + 1>(_L);
+                return Global_<Marker, M + 1>(_L);
             }
 
             template <class F>

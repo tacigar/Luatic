@@ -12,7 +12,7 @@ auto main() -> int {
         return EXIT_FAILURE;
     }
 
-    luatic::Global(L)
+    luatic::Global<>(L)
         .begin()
             .defNamespace("std")
             .begin()
