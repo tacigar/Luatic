@@ -95,6 +95,45 @@ namespace luatic {
             }
         };
 
+        // Partial specialization for functions that get nothing as parameters.
+        template <class T, class R>
+        class DefFunction_<T, std::function<R(void)> > {
+        public:
+            static auto apply(lua_State* L,
+                              const std::string& functionName,
+                              std::function<R(void)> functionBody)
+                -> void {
+                static auto static_func = [functionBody](lua_State* L_) -> int {
+                    auto returns = functionBody();
+                    luatic::detail::Returns<R>::apply(L_, returns);
+                    return luatic::detail::ReturnSize<decltype(returns)>::Value;
+                };
+
+                lua_pushcfunction(L, [](lua_State* L_) -> int {
+                        static_func(L_);
+                    });
+            }
+        };
+
+        // Partial specialization for functions that get nothing as parameters
+        // and return nothing(void).
+        template <class T>
+        class DefFunction_<T, std::function<void(void)> > {
+        public:
+            static auto apply(lua_State* L,
+                              const std::string& functionName,
+                              std::function<void(void)> functionBody)
+                -> void {
+                static auto static_func = [functionBody](lua_State* L_) -> int {
+                    functionBody();
+                    return 0;
+                };
+
+                lua_pushcfunction(L, [](lua_State* L_) -> int {
+                        static_func(L_);
+                    });
+            }
+        };
 
         // DefFunction provides only static function 'apply', which
         // register functions into lua states.
