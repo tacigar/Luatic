@@ -23,6 +23,14 @@ namespace luatic {
         class Argument_;
 
         template <int N>
+        class Argument_<N, bool> {
+        public:
+            static auto apply(lua_State* L) -> bool {
+                return lua_toboolean(L, N);
+            }
+        };
+
+        template <int N>
         class Argument_<N, int> {
         public:
             static auto apply(lua_State* L) -> int {
